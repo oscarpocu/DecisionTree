@@ -13,6 +13,7 @@ def load_dataset(path):
 def main():
     dataset = load_dataset(INPATH+'adult.data')
     print(dataset.head())
+    print(dataset.dtypes)
 
 
 
