@@ -11,7 +11,11 @@ def load_dataset(path):
 
 
 def main():
-    dataset = load_dataset(INPATH+'adult.data')
+    dataset = load_dataset(INPATH+'test.data')
+    data = dataset.to_numpy()
+    X = data[:, :-1]
+    Y = data[:, -1]
+    print(X.shape, data.shape)
     print(dataset.head())
     print(dataset.dtypes)
 
