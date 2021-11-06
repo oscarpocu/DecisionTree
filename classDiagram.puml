@@ -2,17 +2,31 @@
 'https://plantuml.com/class-diagram
 
 class DecisionTree extends Tree{
++ DecisionTree()
++ fit()
++ predict()
 }
 
 class Tree {
++ Tree()
++ add_node(node : Node)
++ delete_node(node : Node)
++ move_current(node : Node)
++ move_to_father()
++ move_to_root()
++ __str__()
+- root_node
+- current_node
 }
 
 class Node {
+- information
+- node_list
+- father
 }
 
-class Edge {
-}
 
-Tree -down-> "0 n" Node
-Node -down-> "0 n" Edge
+
+Tree -down-> "0 *" Node
+Node -> "0 *" Node
 @enduml
