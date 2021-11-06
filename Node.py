@@ -1,4 +1,10 @@
-from Tree import Tree
+from DecisionTree import DecisionTree
+import numpy as np
+
 
 class Node:
-    pass
+    def __init__(self, parent, attribute=None, classes=None):
+        self.childs = []  # [(Class, Child), ]
+        self.parent = parent
+        self.attribute = attribute  # Node Attribute
+        self.decision = {}  # Amount of samples of each class
