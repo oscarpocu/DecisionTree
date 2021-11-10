@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+from DecisionTree import  DecisionTree
+
 INPATH = 'data/'
 
 
@@ -18,8 +20,9 @@ def main():
     print(X.shape, data.shape)
     print(dataset.head())
     print(dataset.dtypes)
-
-
+    decision_tree = DecisionTree()
+    decision_tree.fit(X,Y)
+    a = 3
 
 
 
