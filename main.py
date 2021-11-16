@@ -15,13 +15,14 @@ def load_dataset(path):
 def main():
     dataset = load_dataset(INPATH+'test.data')
     data = dataset.to_numpy()
-    X = data[:, :-1]
+    X = data[:, 1:-1]
     Y = data[:, -1]
     print(X.shape, data.shape)
     print(dataset.head())
     print(dataset.dtypes)
     decision_tree = DecisionTree()
-    decision_tree.fit(X,Y)
+    decision_tree.fit(X, Y)
+    print(decision_tree)
     a = 3
 
 

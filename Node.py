@@ -2,10 +2,10 @@ import numpy as np
 
 
 class Node:
-    def __init__(self, parent,  prediction_classes, attribute=None):
+    def __init__(self, parent,  prediction_classes, attribute_index=None):
         self.childs = []  # [(Class, Child), ]
         self.parent = parent
-        self.attribute = attribute  # Node Attribute
+        self.attribute_index = attribute_index  # Node Attribute (x column)
         self.predictions = {}  # Amount of samples of each class
         for p_class in prediction_classes:
             self.predictions[p_class] = 0

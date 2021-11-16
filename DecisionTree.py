@@ -22,14 +22,18 @@ class DecisionTree():
 
         # if we have different possible predictions then we use probabilities
         for p_class in np.unique(y):
-            node.predictions[p_class] = (p_class == y).shape[0]/y.shape[0]
+            node.predictions[p_class] = y[(p_class == y)].shape[0]/y.shape[0]
+
+        # no more attributes to keep training
+        if x.shape[0] == 0:
+            return
 
         # calculate the best attribute
         gini_gains = []
-        for i in range(len(self.attribute_classes)):
+        for i in range(x.shape[1]):
             gini_gains.append(self.gini_gain(x[:, i], y, self.attribute_classes[i], self.prediction_classes))
         attribute_index = np.argmax(np.array(gini_gains))
-        node.attribute = self.attribute_classes[attribute_index]
+        node.attribute_index = attribute_index
 
         # create child nodes
         for a_class in np.unique(x[:, attribute_index]):
@@ -37,11 +41,14 @@ class DecisionTree():
             node.add_child((a_class, Node(node, prediction_classes)))
 
         # call recursive fit with new x and y
-        indices = np.arange(x.shape[0])
-        for child in node.childs:
-            new_x = x[x[:, attribute_index] == child[0], indices != attribute_index]
-            new_y = y[x[:, attribute_index] == child[0]]
-            self.rec_fit(child[1], new_x, new_y)
+        indices = np.arange(x.shape[1])
+        for child_i in range(len(node.childs)):
+            valid_rows = x[:, attribute_index] == node.childs[child_i][0]
+            valid_cols = indices != attribute_index
+            new_x = x[valid_rows, :]
+            new_x = new_x[:, valid_cols]
+            new_y = y[valid_rows]
+            self.rec_fit(node.childs[child_i][1], new_x, new_y)
 
         return
 
@@ -49,7 +56,7 @@ class DecisionTree():
         self.x = x
         self.y = y
         self.prediction_classes = np.unique(y)
-        self.root = Node(None, np.zeros(x.shape[1]), self.prediction_classes)
+        self.root = Node(None, self.prediction_classes)
         for j in range(x.shape[1]):
             self.attribute_classes.append(np.unique(x[:, j]))
         self.rec_fit(self.root, self.x, self.y)
@@ -76,5 +83,29 @@ class DecisionTree():
             product *= self.gini_coefficient(x[condition], x_classes)
             g_sum += product
         return self.gini_coefficient(x, x_classes) - g_sum
+
+    def rec_str(self, out, node, level):
+        level += 1
+        if len(node.childs) == 0:
+            out += " --> "
+            max_key = max(node.predictions, key=node.predictions.get)
+            out += max_key
+
+        for child in node.childs:
+            out += "\n"
+            out += (level*"-------")
+            out += "|"+str(child[0])
+            out = self.rec_str(out, child[1], level)
+        level -= 1
+        return out
+
+    def __str__(self):
+        out = "\n"
+        out += "Root"
+        return self.rec_str(out, self.root, 0)
+
+
+
+
 
 
