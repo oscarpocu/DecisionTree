@@ -1,4 +1,5 @@
 import numpy as np
+import time
 
 from Node import Node
 
@@ -13,6 +14,8 @@ class DecisionTree():
         self.y = None
         self.used_attributes = None
         self.root = None
+        self.max_time = 60
+        self.init_time = -1
 
     def rec_fit(self, node, x, y):
         # if all predictions are the same we have the decision
@@ -24,8 +27,12 @@ class DecisionTree():
         for p_class in np.unique(y):
             node.predictions[p_class] = y[(p_class == y)].shape[0]/y.shape[0]
 
+        # if max time is reached then fit is ended
+        if self.max_time <= time.time() - self.init_time:
+            return
+
         # no more attributes to keep training
-        if x.shape[0] == 0:
+        if x.shape[0] == 0 or x.shape[1] == 0:
             return
 
         # calculate the best attribute
@@ -53,6 +60,7 @@ class DecisionTree():
         return
 
     def fit(self, x, y):
+        self.init_time = time.time()
         self.x = x
         self.y = y
         self.prediction_classes = np.unique(y)
