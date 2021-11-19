@@ -75,7 +75,7 @@ class DecisionTree():
     def prune(self):
         pass
 
-    def gini_coefficient(self, x, x_classes):
+    def gini(self, x, x_classes):
         g_sum = 0
         for v in x_classes:
             condition = (v == x)
@@ -88,9 +88,25 @@ class DecisionTree():
         for y_class in y_classes:
             condition = (y == y_class)
             product = x[condition].shape[0]/x.shape[0]
-            product *= self.gini_coefficient(x[condition], x_classes)
+            product *= self.gini(x[condition], x_classes)
             g_sum += product
-        return self.gini_coefficient(x, x_classes) - g_sum
+        return self.gini(x, x_classes) - g_sum
+
+    def entropy(self, x, x_classes, y=None, y_classes=None):
+        sum = 0
+        if y is None or y_classes is None:
+            for x_class in x_classes:
+                prob = np.sum(x == x_class)/x.shape[0]
+                sum += (prob * np.log2(prob)) if prob != 0 else 0
+            return -sum
+        else:
+            for y_class in y_classes:
+                x_cond = x[y_class == y]
+                sum += ((x_cond.shape[0] / x.shape[0]) * self.entropy(x_cond, x_classes))
+            return sum
+
+    def entropy_gain(self, x, x_classes, y, y_classes):
+        return self.entropy(x, x_classes) - self.entropy(x, x_classes, y, y_classes)
 
     def rec_str(self, out, node, level):
         level += 1
