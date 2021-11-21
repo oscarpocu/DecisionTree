@@ -42,7 +42,7 @@ def load_dataset(path):
 
 
 def main():
-    dataset = load_dataset(INPATH+'adult.data')
+    dataset = load_dataset(INPATH+'test.data')
     dataset = dataset.replace({' ?': np.NaN})
     dataset = dataset.dropna()
 
@@ -50,15 +50,16 @@ def main():
 
     data = dataset.to_numpy()
 
-    data[:, [10, 11]] = process_gain_and_loss(data[:, [10, 11]])
-    data = continuos_to_discrete_attr(data, [0, 2, 4, 12])
-    X = data[:, :-1]
+    #data[:, [10, 11]] = process_gain_and_loss(data[:, [10, 11]])
+    #data = continuos_to_discrete_attr(data, [0, 2, 4, 12])
+    X = data[:, 1:-1]
     Y = data[:, -1]
 
     print(X.shape, data.shape)
     decision_tree = DecisionTree()
-    decision_tree.fit(X, Y)
-    write_out_tree(str(decision_tree))
+    decision_tree.fit(X, Y, dataset.columns[1:-1])
+    #write_out_tree(str(decision_tree))
+    print(decision_tree)
 
 
 # todo: convert continuous attributes

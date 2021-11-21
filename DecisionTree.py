@@ -1,4 +1,4 @@
-import numpy as np
+from Metrics import *
 import time
 
 from Node import Node
@@ -6,8 +6,12 @@ from Node import Node
 
 class DecisionTree():
     def __init__(self, criterion='gini'):
-        self.criterion = criterion
-        self.attribute_classes = []
+        if criterion == 'gini':
+            self.criterion = gini_gain
+        elif criterion == 'entropy':
+            self.criterion = entropy_gain
+        self.attribute_names = None
+        self.attribute_classes = []  # different classes in every attribute
         self.prediction_classes = []
         self.used_attributes = []
         self.x = None
@@ -36,16 +40,16 @@ class DecisionTree():
             return
 
         # calculate the best attribute
-        gini_gains = []
+        evaluation_metrics = []
         for i in range(x.shape[1]):
-            gini_gains.append(self.gini_gain(x[:, i], y, self.attribute_classes[i], self.prediction_classes))
-        attribute_index = np.argmax(np.array(gini_gains))
+            evaluation_metrics.append(self.criterion(x[:, i], y, self.attribute_classes[i], self.prediction_classes))
+        attribute_index = np.argmax(np.array(evaluation_metrics))
         node.attribute_index = attribute_index
 
         # create child nodes
         for a_class in np.unique(x[:, attribute_index]):
             prediction_classes = np.unique(y[x[:, attribute_index] == a_class])
-            node.add_child((a_class, Node(node, prediction_classes)))
+            node.add_child((a_class, Node(node, prediction_classes, self.attribute_names[attribute_index])))
 
         # call recursive fit with new x and y
         indices = np.arange(x.shape[1])
@@ -59,8 +63,14 @@ class DecisionTree():
 
         return
 
-    def fit(self, x, y):
+    def fit(self, x, y, attribute_names=None):
         self.init_time = time.time()
+        if attribute_names is not None and x.shape[1] == len(attribute_names):
+            self.attribute_names = attribute_names
+        else:
+            self.attribute_names = []
+            for j in range(x.shape[1]):
+                self.attribute_names.append("Attribute"+str(j))
         self.x = x
         self.y = y
         self.prediction_classes = np.unique(y)
@@ -74,39 +84,6 @@ class DecisionTree():
 
     def prune(self):
         pass
-
-    def gini(self, x, x_classes):
-        g_sum = 0
-        for v in x_classes:
-            condition = (v == x)
-            product = (x[condition].shape[0]/x.shape[0])**2
-            g_sum += product
-        return 1 - g_sum
-
-    def gini_gain(self, x, y, x_classes, y_classes):
-        g_sum = 0
-        for y_class in y_classes:
-            condition = (y == y_class)
-            product = x[condition].shape[0]/x.shape[0]
-            product *= self.gini(x[condition], x_classes)
-            g_sum += product
-        return self.gini(x, x_classes) - g_sum
-
-    def entropy(self, x, x_classes, y=None, y_classes=None):
-        sum = 0
-        if y is None or y_classes is None:
-            for x_class in x_classes:
-                prob = np.sum(x == x_class)/x.shape[0]
-                sum += (prob * np.log2(prob)) if prob != 0 else 0
-            return -sum
-        else:
-            for y_class in y_classes:
-                x_cond = x[y_class == y]
-                sum += ((x_cond.shape[0] / x.shape[0]) * self.entropy(x_cond, x_classes))
-            return sum
-
-    def entropy_gain(self, x, x_classes, y, y_classes):
-        return self.entropy(x, x_classes) - self.entropy(x, x_classes, y, y_classes)
 
     def rec_str(self, out, node, level):
         level += 1
