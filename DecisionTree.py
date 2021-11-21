@@ -49,7 +49,7 @@ class DecisionTree():
         # create child nodes
         for a_class in np.unique(x[:, attribute_index]):
             prediction_classes = np.unique(y[x[:, attribute_index] == a_class])
-            node.add_child((a_class, Node(node, prediction_classes, self.attribute_names[attribute_index])))
+            node.add_child((a_class, Node(node, prediction_classes, attribute_index)))
 
         # call recursive fit with new x and y
         indices = np.arange(x.shape[1])
