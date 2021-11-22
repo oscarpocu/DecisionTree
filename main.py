@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 
 from DecisionTree import  DecisionTree
@@ -60,6 +60,12 @@ def main():
     decision_tree.fit(X, Y, dataset.columns[1:-1])
     #write_out_tree(str(decision_tree))
     print(decision_tree)
+    print("\n\n--------------------Test with Training set--------------------\n")
+    for i in range(min(dataset.shape[0], 20)):
+        x = X[i,:]
+        ground_truth = Y[i]
+        predict = decision_tree.predict(x)
+        print("Index ["+str(i)+"]; Prediction: "+str(predict)+" GT: "+str(ground_truth)+"     "+("Correct" if ground_truth==predict else "Incorrect"))
 
 
 # todo: convert continuous attributes

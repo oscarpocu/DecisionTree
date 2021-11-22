@@ -60,9 +60,9 @@ class DecisionTree():
 
         # call recursive fit with new x and y
         indices = np.arange(x.shape[1])
+        valid_cols = indices != attribute_index
         for child_i in range(len(node.childs)):
             valid_rows = x[:, attribute_index] == node.childs[child_i][0]
-            valid_cols = indices != attribute_index
             new_x = x[valid_rows, :]
             new_x = new_x[:, valid_cols]
             new_y = y[valid_rows]
@@ -90,8 +90,28 @@ class DecisionTree():
             self.attribute_classes.append(np.unique(x[:, j]))
         self.rec_fit(self.root, self.x, self.y, available_index)
 
+    def rec_predict(self, x, node):
+        t = x[node.attribute_index]
+        a = self.attribute_names[node.attribute_index]
+        # print(str(a)+" -> "+str(t))
+        if len(node.childs) == 0:
+            # print("Predict: " + str(node.predictions))
+            return max(node.predictions, key=node.predictions.get)
+        
+        next_node = False
+        
+        for child in node.childs:
+            if child[0] == t:
+                next_node = child[1]
+                break
+
+        assert(next_node != False) # Esto nunca deberia fallar
+
+        return self.rec_predict(x, next_node)
+
     def predict(self, x):
-        pass
+        # print(x)
+        return self.rec_predict(x, self.root)
 
     def prune(self):
         pass
