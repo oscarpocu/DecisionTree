@@ -28,7 +28,7 @@ class DecisionTree():
         self.max_time = 60
         self.init_time = -1
 
-    def rec_fit(self, node, x, y):
+    def rec_fit(self, node, x, y, available_attribute_index):
         # if all predictions are the same we have the decision
         if np.unique(y).shape[0] == 1:
             node.predictions[y[0]] = 1
@@ -51,7 +51,7 @@ class DecisionTree():
         for i in range(x.shape[1]):
             evaluation_metrics.append(self.criterion(x[:, i], y, self.attribute_classes[i], self.prediction_classes))
         attribute_index = np.argmax(np.array(evaluation_metrics))
-        node.set_attribute_name(self.attribute_names[attribute_index])
+        node.set_attribute_index(available_attribute_index[attribute_index])
 
         # create child nodes
         for a_class in np.unique(x[:, attribute_index]):
@@ -66,7 +66,8 @@ class DecisionTree():
             new_x = x[valid_rows, :]
             new_x = new_x[:, valid_cols]
             new_y = y[valid_rows]
-            self.rec_fit(node.childs[child_i][1], new_x, new_y)
+            new_available_index = available_attribute_index[valid_cols]
+            self.rec_fit(node.childs[child_i][1], new_x, new_y, new_available_index)
 
         return
 
@@ -83,10 +84,11 @@ class DecisionTree():
         self.x = x
         self.y = y
         self.prediction_classes = np.unique(y)
+        available_index = np.array(range(x.shape[1]))
         self.root = Node(None, self.prediction_classes, "Root")
         for j in range(x.shape[1]):
             self.attribute_classes.append(np.unique(x[:, j]))
-        self.rec_fit(self.root, self.x, self.y)
+        self.rec_fit(self.root, self.x, self.y, available_index)
 
     def predict(self, x):
         pass
@@ -104,7 +106,7 @@ class DecisionTree():
         for child in node.childs:
             out += "\n"
             out += (level*"--------")
-            out += "|" + node.attribute_name + " --> " + str(child[0])
+            out += "|" + self.attribute_names[node.attribute_index] + " --> " + str(child[0])
             out = self.rec_str(out, child[1], level)
         level -= 1
         return out
