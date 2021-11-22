@@ -30,9 +30,25 @@ def entropy(x, x_classes, y=None, y_classes=None):
     else:
         for y_class in y_classes:
             x_cond = x[y_class == y]
-            sum += ((x_cond.shape[0] / x.shape[0]) * self.entropy(x_cond, x_classes))
+            sum += ((x_cond.shape[0] / x.shape[0]) * entropy(x_cond, x_classes))
         return sum
 
 
 def entropy_gain(x, x_classes, y, y_classes):
     return entropy(x, x_classes) - entropy(x, x_classes, y, y_classes)
+
+
+def split_info(x, y, x_classes, y_classes):
+    sum = 0
+    for y_class in y_classes:
+        prop = (x[y_class == y].shape[0]/x.shape[0])
+        sum += prop * np.log2(prop)
+    return -sum
+
+
+def gain_ratio_entropy(x, y, x_classes, y_classes):
+    return entropy_gain(x, y, x_classes, y_classes) / split_info(x, y, x_classes, y_classes)
+
+
+def gain_ratio_gini(x, y, x_classes, y_classes):
+    return gini_gain(x, y, x_classes, y_classes) / split_info(x, y, x_classes, y_classes)
