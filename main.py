@@ -56,7 +56,7 @@ def main():
     Y = data[:, -1]
 
     print(X.shape, data.shape)
-    decision_tree = DecisionTree()
+    decision_tree = DecisionTree(criterion="gini_ratio")
     decision_tree.fit(X, Y, dataset.columns[1:-1])
     #write_out_tree(str(decision_tree))
     print(decision_tree)

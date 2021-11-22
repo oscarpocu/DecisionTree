@@ -6,10 +6,17 @@ from Node import Node
 
 class DecisionTree():
     def __init__(self, criterion='gini'):
-        if criterion == 'gini':
-            self.criterion = gini_gain
-        elif criterion == 'entropy':
+        if criterion == 'entropy':
             self.criterion = entropy_gain
+        elif criterion == "entropy_ratio":
+            self.criterion = gain_ratio_entropy
+        elif criterion == "gini_ratio":
+            self.criterion = gain_ratio_gini
+        elif criterion == "gini":
+            self.criterion = gini_gain
+        else:
+            self.criterion = gini_gain
+
         self.attribute_names = None
         self.attribute_classes = []  # different classes in every attribute
         self.prediction_classes = []
@@ -44,12 +51,12 @@ class DecisionTree():
         for i in range(x.shape[1]):
             evaluation_metrics.append(self.criterion(x[:, i], y, self.attribute_classes[i], self.prediction_classes))
         attribute_index = np.argmax(np.array(evaluation_metrics))
-        node.attribute_index = attribute_index
+        node.set_attribute_name(self.attribute_names[attribute_index])
 
         # create child nodes
         for a_class in np.unique(x[:, attribute_index]):
             prediction_classes = np.unique(y[x[:, attribute_index] == a_class])
-            node.add_child((a_class, Node(node, prediction_classes, attribute_index)))
+            node.add_child((a_class, Node(node, prediction_classes)))
 
         # call recursive fit with new x and y
         indices = np.arange(x.shape[1])
@@ -65,6 +72,8 @@ class DecisionTree():
 
     def fit(self, x, y, attribute_names=None):
         self.init_time = time.time()
+
+        # creating or adding attribute names
         if attribute_names is not None and x.shape[1] == len(attribute_names):
             self.attribute_names = attribute_names
         else:
@@ -74,7 +83,7 @@ class DecisionTree():
         self.x = x
         self.y = y
         self.prediction_classes = np.unique(y)
-        self.root = Node(None, self.prediction_classes)
+        self.root = Node(None, self.prediction_classes, "Root")
         for j in range(x.shape[1]):
             self.attribute_classes.append(np.unique(x[:, j]))
         self.rec_fit(self.root, self.x, self.y)
@@ -88,14 +97,14 @@ class DecisionTree():
     def rec_str(self, out, node, level):
         level += 1
         if len(node.childs) == 0:
-            out += " --> "
+            out += " ==> "
             max_key = max(node.predictions, key=node.predictions.get)
             out += max_key
 
         for child in node.childs:
             out += "\n"
-            out += (level*"-------")
-            out += "|"+str(child[0])
+            out += (level*"--------")
+            out += "|" + node.attribute_name + " --> " + str(child[0])
             out = self.rec_str(out, child[1], level)
         level -= 1
         return out
@@ -104,7 +113,6 @@ class DecisionTree():
         out = "\n"
         out += "Root"
         return self.rec_str(out, self.root, 0)
-
 
 
 

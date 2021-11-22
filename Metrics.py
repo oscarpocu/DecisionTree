@@ -34,7 +34,7 @@ def entropy(x, x_classes, y=None, y_classes=None):
         return sum
 
 
-def entropy_gain(x, x_classes, y, y_classes):
+def entropy_gain(x, y, x_classes, y_classes):
     return entropy(x, x_classes) - entropy(x, x_classes, y, y_classes)
 
 
