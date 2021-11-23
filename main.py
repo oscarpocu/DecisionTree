@@ -8,7 +8,7 @@ from DecisionTree import  DecisionTree
 INPATH = 'data/'
 
 
-def write_out_tree(out, filename='out.txt'):
+def write_out_tree(out, filename='data/out.txt'):
     f = open(filename, "w")
     f.write(out)
     f.close()
@@ -42,7 +42,7 @@ def load_dataset(path):
 
 
 def main():
-    dataset = load_dataset(INPATH+'test.data')
+    dataset = load_dataset(INPATH+'adult.data')
     dataset = dataset.replace({' ?': np.NaN})
     dataset = dataset.dropna()
 
@@ -50,14 +50,14 @@ def main():
 
     data = dataset.to_numpy()
 
-    #data[:, [10, 11]] = process_gain_and_loss(data[:, [10, 11]])
-    #data = continuos_to_discrete_attr(data, [0, 2, 4, 12])
-    X = data[:, 1:-1]
+    data[:, [10, 11]] = process_gain_and_loss(data[:, [10, 11]])
+    data = continuos_to_discrete_attr(data, [0, 2, 4, 12])
+    X = data[:, :-1]
     Y = data[:, -1]
 
     print(X.shape, data.shape)
     decision_tree = DecisionTree(criterion="gini_ratio")
-    decision_tree.fit(X, Y, dataset.columns[1:-1])
+    decision_tree.fit(X, Y, dataset.columns[:-1])
     #write_out_tree(str(decision_tree))
     print(decision_tree)
     print("\n\n--------------------Test with Training set--------------------\n")
