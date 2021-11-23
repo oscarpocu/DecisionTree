@@ -92,7 +92,7 @@ class DecisionTree():
 
     def rec_predict(self, x, node):
         t = x[node.attribute_index]
-        a = self.attribute_names[node.attribute_index]
+        # a = self.attribute_names[node.attribute_index]
         # print(str(a)+" -> "+str(t))
         if len(node.childs) == 0:
             # print("Predict: " + str(node.predictions))
@@ -105,7 +105,8 @@ class DecisionTree():
                 next_node = child[1]
                 break
 
-        assert(next_node != False) # Esto nunca deberia fallar
+        if next_node == False:
+            return max(node.predictions, key=node.predictions.get)
 
         return self.rec_predict(x, next_node)
 

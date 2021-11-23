@@ -37,7 +37,7 @@ def standard_norm(data, index):
 
 
 def load_dataset(path):
-    dataset = pd.read_csv(path, header=0, delimiter=',')
+    dataset = pd.read_csv(path, header=0, delimiter=',', skipinitialspace = True)
     return dataset
 
 
@@ -66,7 +66,6 @@ def main():
         ground_truth = Y[i]
         predict = decision_tree.predict(x)
         print("Index ["+str(i)+"]; Prediction: "+str(predict)+" GT: "+str(ground_truth)+"     "+("Correct" if ground_truth==predict else "Incorrect"))
-
 
 # todo: convert continuous attributes
 if __name__ == "__main__":
