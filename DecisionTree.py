@@ -111,8 +111,13 @@ class DecisionTree():
         return self.rec_predict(x, next_node)
 
     def predict(self, x):
-        # print(x)
-        return self.rec_predict(x, self.root)
+        if len(x.shape) > 1:
+            predictions = []
+            for i in range(x.shape[0]):
+                predictions.append(self.rec_predict(x[i, :], self.root))
+            return np.array(predictions)
+        else:
+            return self.rec_predict(x, self.root)
 
     def prune(self):
         pass

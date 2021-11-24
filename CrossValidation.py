@@ -39,30 +39,41 @@ def cross_val_score(model, x, y, cv=5, scoring="accuracy"):
     else:
         scoring_func = accuracy
 
-    data = np.hstack(x, y)
+    y = np.reshape(y, (y.shape[0], 1))
+    data = np.hstack((x, y))
     np.random.shuffle(data)
 
     _x = data[:, :-1]
     _y = data[:, -1]
-    n_rows = x.shape[0] % cv
+    n_rows = int(np.trunc(x.shape[0] / cv))
     x_partitions = []
     y_partitions = []
 
     i = 0
-    for _ in range(n_rows-1):
+    for _ in range(cv - 1):
         x_partitions.append(_x[i * n_rows:(i + 1) * n_rows, :])
         y_partitions.append(_y[i * n_rows:(i + 1) * n_rows])
         i += 1
 
-    x_partitions.append(x[i * n_rows:, :])
-    y_partitions.append(y[i * n_rows:])
+    x_partitions.append(_x[i * n_rows:, :])
+    y_partitions.append(_y[i * n_rows:])
 
     scores = []
-    for it_index in range(n_rows):
+    index_set = np.array([x for x in range(cv)])
+
+    for it_index in range(cv):
         x_test = x_partitions[it_index]
-        x_train = x_partitions[range(n_rows) != it_index]
+        x_train_partitions = np.array(x_partitions, dtype=object)[index_set != it_index]
         y_test = y_partitions[it_index]
-        y_train = y_partitions[range(n_rows) != it_index]
+        y_train_partitions = np.array(y_partitions, dtype=object)[index_set != it_index]
+
+        x_train = x_train_partitions[0]
+        y_train = y_train_partitions[0]
+
+        for j in range(1, cv-1):
+            x_train = np.vstack((x_train, x_train_partitions[j]))
+            y_train = np.concatenate((y_train, y_train_partitions[j]))
+
         model.fit(x_train, y_train)
         scores.append(scoring_func(model.predict(x_test), y_test))
 
