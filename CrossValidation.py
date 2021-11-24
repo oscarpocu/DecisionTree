@@ -10,7 +10,7 @@ def precision(predictions, y):
     false = predictions[predictions != y]
     true_positive = correct[correct == prediction_classes[0]]
     false_positive = false[false == prediction_classes[0]]
-    return true_positive.shape[0] / (true_positive.shape[0] * false_positive.shape[0])
+    return true_positive.shape[0] / (true_positive.shape[0] + false_positive.shape[0])
 
 
 def accuracy(predictions, y):
@@ -26,7 +26,7 @@ def recall(predictions, y):
     false = predictions[predictions != y]
     true_positive = correct[correct == prediction_classes[0]]
     false_negative = false[false == prediction_classes[1]]
-    return true_positive.shape[0] / (true_positive.shape[0] * false_negative.shape[0])
+    return true_positive.shape[0] / (true_positive.shape[0] + false_negative.shape[0])
 
 
 def cross_val_score(model, x, y, cv=5, scoring="accuracy"):

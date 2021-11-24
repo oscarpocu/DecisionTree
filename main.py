@@ -69,7 +69,7 @@ def main():
         predict = decision_tree.predict(x)
         print("Index ["+str(i)+"]; Prediction: "+str(predict)+" GT: "+str(ground_truth)+"     "+("Correct" if ground_truth==predict else "Incorrect"))
 
-    print("\n\nCross Validation Score: ", cross_val_score(decision_tree, X, Y, scoring="recall"))
+    print("\n\nCross Validation Score: ", cross_val_score(decision_tree, X, Y, scoring="precision"))
 
 
 # todo: convert continuous attributes
