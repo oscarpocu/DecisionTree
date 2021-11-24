@@ -14,19 +14,9 @@ def write_out_tree(out, filename='data/out.txt'):
     f.close()
 
 
-def process_gain_and_loss(data):
-    data[:, 0] = np.where(data[:, 0] == 0, 'capital-gain == 0', data[:, 0])
-    data[:, 0] = np.where(data[:, 0] != 'capital-gain == 0', 'capital-gain > 0', data[:, 0])
-
-    data[:, 1] = np.where(data[:, 1] == 0, 'capital-loss == 0', data[:, 1])
-    data[:, 1] = np.where(data[:, 1] != 'capital-loss == 0', 'capital-loss > 0', data[:, 1])
-
-    return data
-
-
 def continuos_to_discrete_attr(data, index, n=2):
     for i in index:
-        data[:, i] = pd.qcut(data[:, i], n)
+        data[:, i] = pd.qcut(data[:, i], n, duplicates='drop')
     return data
 
 
@@ -40,8 +30,6 @@ def load_dataset(path):
     dataset = pd.read_csv(path, header=0, delimiter=',', skipinitialspace = True)
     return dataset
 
-    score = cross_val_score(decision_tree, X, Y)
-
 
 def main():
     dataset = load_dataset(INPATH+'adult.data')
@@ -52,8 +40,7 @@ def main():
 
     data = dataset.to_numpy()
 
-    data[:, [10, 11]] = process_gain_and_loss(data[:, [10, 11]])
-    data = continuos_to_discrete_attr(data, [0, 2, 4, 12])
+    data = continuos_to_discrete_attr(data, [0, 2, 4, 10, 11, 12], n=6)
     X = data[:, :-1]
     Y = data[:, -1]
 
@@ -69,7 +56,7 @@ def main():
         predict = decision_tree.predict(x)
         print("Index ["+str(i)+"]; Prediction: "+str(predict)+" GT: "+str(ground_truth)+"     "+("Correct" if ground_truth==predict else "Incorrect"))
 
-    print("\n\nCross Validation Score: ", cross_val_score(decision_tree, X, Y, scoring="precision"))
+    print("\n\nCross Validation Score: ", cross_val_score(decision_tree, X, Y, scoring="accuracy"))
 
 
 # todo: convert continuous attributes
