@@ -79,4 +79,4 @@ def cross_val_score(model, x, y, cv=5, scoring="accuracy"):
 
     return np.mean(np.array(scores))
 
-/*volvemos a probar*/
+
