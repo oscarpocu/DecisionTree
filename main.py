@@ -14,10 +14,20 @@ def write_out_tree(out, filename='data/out.txt'):
     f.close()
 
 
-def continuos_to_discrete_attr(data, index, n=2):
+def get_continuous_attrs(dataset):
+    index = []
+    for i, column in enumerate(dataset.columns):
+        if dataset[column].dtype == np.float64 or dataset[column].dtype == np.int64:
+            index.append(i)
+    return index
+
+
+def continuous_to_discrete_attr(data, index, n=2):
+    bins_list = []
     for i in index:
-        data[:, i] = pd.qcut(data[:, i], n, duplicates='drop')
-    return data
+        data[:, i], bins = pd.qcut(data[:, i], n, retbins=True, duplicates='drop')
+        bins_list.append(bins)
+    return data, bins_list
 
 
 def standard_norm(data, index):
@@ -27,7 +37,7 @@ def standard_norm(data, index):
 
 
 def load_dataset(path):
-    dataset = pd.read_csv(path, header=0, delimiter=',', skipinitialspace = True)
+    dataset = pd.read_csv(path, header=0, delimiter=',', skipinitialspace=True)
     return dataset
 
 
@@ -36,11 +46,11 @@ def main():
     dataset = dataset.replace({'?': np.NaN})
     dataset = dataset.dropna()
 
-    # todo: automatitzar-ho amb np.unique()
-
     data = dataset.to_numpy()
 
-    data = continuos_to_discrete_attr(data, [0, 2, 4, 10, 11, 12], n=6)
+    continuous_attr_index = get_continuous_attrs(dataset)
+    data, bins_list = continuous_to_discrete_attr(data, continuous_attr_index, n=2)
+
     X = data[:, :-1]
     Y = data[:, -1]
 
@@ -59,6 +69,5 @@ def main():
     print("\n\nCross Validation Score: ", cross_val_score(decision_tree, X, Y, scoring="accuracy"))
 
 
-# todo: convert continuous attributes
 if __name__ == "__main__":
     main()
