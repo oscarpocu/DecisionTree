@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def precision(predictions, y):
     prediction_classes = np.unique(y)
     if prediction_classes.shape[0] != 2:
@@ -81,3 +80,4 @@ def cross_val_score(model, x, y, cv=5, scoring="accuracy"):
 
 
 
+/*probando probandoo*/
