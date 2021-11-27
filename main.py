@@ -6,7 +6,7 @@ from CrossValidation import *
 from DecisionTree import  DecisionTree
 
 INPATH = 'data/'
-
+N_CLASSES = 24
 
 def write_out_tree(out, filename='data/out.txt'):
     f = open(filename, "w")
@@ -57,7 +57,7 @@ def main():
     data = dataset.to_numpy()
     np.random.shuffle(data)
     continuous_attr_index = get_continuous_attrs(dataset)
-    data, bins_list = continuous_to_discrete_attr(data, continuous_attr_index, n=2)
+    data, bins_list = continuous_to_discrete_attr(data, continuous_attr_index, n=N_CLASSES)
     X = data[:, :-1]
     Y = data[:, -1]
 
@@ -65,9 +65,8 @@ def main():
     decision_tree = DecisionTree(criterion="entropy_ratio")
     decision_tree.fit(X, Y, dataset.columns[:-1])
     write_out_tree(str(decision_tree))
-    #print(decision_tree)
 
-    # Prediction Tests
+    # ------------------------------------------- TEST WITH TRAINING SET --------------------------------------------- #
     print("\n\n--------------------Test with Training set--------------------\n")
     for i in range(min(dataset.shape[0], 20)):
         x = X[i, :]
@@ -75,15 +74,15 @@ def main():
         predict = decision_tree.predict(x)
         print("Index ["+str(i)+"]; Prediction: "+str(predict)+" GT: "+str(ground_truth)+"     "+("Correct" if ground_truth==predict else "Incorrect"))
 
-    # CrossValidation
+    # ------------------------------------------------ CROSS VAL ----------------------------------------------------- #
     print("\n\nCross Validation Score: ", cross_val_score(decision_tree, X, Y, scoring="accuracy"))
 
-    # -------------------------------- TEST DATA ------------------------------------ #
+    # ------------------------------------------------ TEST DATA ----------------------------------------------------- #
     test_dataset = load_dataset(INPATH + 'adult.test')
     test_dataset = test_dataset.replace({'?': np.NaN})
     test_dataset = test_dataset.dropna()
     test_data = test_dataset.to_numpy()
-    test_data = continuous_to_discrete_attr(test_data, continuous_attr_index, get_bins=False, bins=bins_list, n=2)
+    test_data = continuous_to_discrete_attr(test_data, continuous_attr_index, get_bins=False, bins=bins_list, n=N_CLASSES)
 
     X_test = test_data[:, :-1]
     Y_test = test_data[:, -1]
